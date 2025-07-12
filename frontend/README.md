@@ -1,3 +1,91 @@
+# Frontend - NexusOps CRM
+
+## Requisitos
+- Node.js 18+
+- npm 9+
+
+## Instalación
+
+1. Instala las dependencias:
+   ```bash
+   npm install
+   ```
+
+2. Configura el proxy para conectar con el backend:
+   - El archivo `vite.config.ts` ya está configurado para redirigir `/auth` y `/api` a `http://localhost:3000`.
+   - Si tu backend corre en otro puerto, actualiza el target en `vite.config.ts`.
+
+3. Inicia el servidor de desarrollo:
+   ```bash
+   npm run dev
+   ```
+   El frontend estará disponible en `http://localhost:5173`.
+
+## Flujo de autenticación
+- El login y logout funcionan automáticamente usando cookies httpOnly.
+- El frontend detecta la sesión llamando a `/api/users/me`.
+- No necesitas modificar nada para que el frontend se conecte al backend, solo asegúrate de que ambos estén corriendo.
+
+## Limpieza de mocks y datos de ejemplo
+- No es necesario borrar mocks manualmente, el frontend ya está conectado al backend real.
+- Si agregas nuevos endpoints en el backend, asegúrate de actualizar las rutas en el frontend si es necesario.
+
+## Estructura recomendada
+- Usa el hook `useAuthContext()` para acceder al usuario y métodos de autenticación en cualquier componente.
+- Para obtener datos protegidos, usa fetch con rutas `/api/...` y `credentials: 'include'`.
+
+## Variables de entorno
+- Si necesitas variables de entorno para el frontend, crea un archivo `.env` en la carpeta `frontend` (ejemplo: `VITE_API_URL`).
+
+---
+
+# Backend - NexusOps CRM
+
+## Requisitos
+- Node.js 18+
+- npm 9+
+- PostgreSQL
+
+## Instalación
+
+1. Instala las dependencias:
+   ```bash
+   npm install
+   ```
+
+2. Configura la base de datos:
+   - Crea un archivo `.env` en la carpeta `crm-backend` con el siguiente contenido:
+     ```env
+     DATABASE_URL=postgres://usuario:password@localhost:5432/tu_basededatos
+     JWT_SECRET=unsecretoseguro
+     NODE_ENV=development
+     ```
+   - Ajusta los valores según tu entorno.
+
+3. Ejecuta las migraciones:
+   ```bash
+   npx knex migrate:latest
+   ```
+
+4. Inicia el servidor:
+   ```bash
+   npm run dev
+   ```
+   El backend estará disponible en `http://localhost:3000`.
+
+## Endpoints principales
+- `/auth/register` - Registro de usuario
+- `/auth/login` - Login (devuelve cookie httpOnly)
+- `/auth/logout` - Logout (elimina cookie)
+- `/api/users/me` - Devuelve el usuario autenticado
+
+## Notas
+- No subas el archivo `.env` ni `node_modules` al repositorio (ya están en `.gitignore`).
+- Si cambias el puerto o rutas, actualiza el proxy en el frontend.
+
+---
+
+¡Listo! Así puedes trabajar y conectar el frontend y backend de NexusOps CRM.
 # Frontend CRM Personal
 
 Este frontend está construido con React, Vite y TypeScript. Utiliza TailwindCSS para estilos y varias librerías modernas para UI y manejo de formularios.
