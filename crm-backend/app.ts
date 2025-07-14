@@ -3,6 +3,7 @@ import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import { authRoutes } from './src/routes/authRoutes';
 import { userRoutes } from './src/routes/userRoutes';
+import { clientRoutes } from './src/routes/clientRoutes';
 import { AuthService } from './src/services/auth.service';
 
 import { UserRepository } from './src/repositories/userRepository';
@@ -27,6 +28,7 @@ app.get('/', (_req, res) => {
 
 app.use('/auth', authRoutes(authService));
 app.use('/api/users', userRoutes(authService));
+app.use('/api/clients', clientRoutes());
 
 app.listen(3000, () => {
   console.log('Server running on http://localhost:3000');

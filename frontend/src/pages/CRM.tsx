@@ -1,20 +1,32 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Header from '../components/Layout/Header';
 import { Card, CardContent, CardHeader } from '../components/UI/Card';
 import ClientModal from '../components/CRM/ClientModal';
-import { mockClients as initialClients } from '../data/mockData';
+import ClientSlideOver from '../components/CRM/ClientSlideOver';
+import { Client } from '../../../shared/types/client';
 import { Plus, Phone, Mail, Building } from 'lucide-react';
 import Button from '../components/UI/Button';
-import { Client } from '../types';
+import { fetchClients, createClient } from '../data/fetchClients';
 
 const CRM: React.FC = () => {
-  const [clients, setClients] = useState<Client[]>(initialClients);
-  const [selectedClient, setSelectedClient] = useState<Client | null>(null);
+  const [clients, setClients] = useState<Client[]>([]);
+  const [selectedClient, setSelectedClient] = useState<Client | undefined>(undefined);
   const [showClientModal, setShowClientModal] = useState(false);
+  const [showSlideOver, setShowSlideOver] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    setLoading(true);
+    fetchClients()
+      .then(setClients)
+      .catch(() => setError('Error al obtener clientes'))
+      .finally(() => setLoading(false));
+  }, []);
 
   const handleCreateClient = () => {
-    setSelectedClient(null);
+    setSelectedClient(undefined);
     setIsCreating(true);
     setShowClientModal(true);
   };
@@ -22,31 +34,33 @@ const CRM: React.FC = () => {
   const handleEditClient = (client: Client) => {
     setSelectedClient(client);
     setIsCreating(false);
-    setShowClientModal(true);
+    setShowSlideOver(true);
   };
 
-  const handleSaveClient = (clientData: Omit<Client, 'id' | 'createdAt' | 'updatedAt'>) => {
+  const handleSaveClient = async (clientData: Partial<Client>) => {
     if (isCreating) {
-      const newClient: Client = {
-        ...clientData,
-        id: Date.now().toString(),
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      };
-      setClients([...clients, newClient]);
+      try {
+        const newClient = await createClient(clientData);
+        setClients([...clients, newClient]);
+      } catch (e) {
+        setError('Error al crear cliente');
+      }
     } else if (selectedClient) {
+      // Aquí podrías agregar lógica para actualizar el cliente usando la API si tienes endpoint
       const updatedClient: Client = {
         ...selectedClient,
         ...clientData,
-        updatedAt: new Date(),
+        updatedAt: new Date().toISOString(),
       };
       setClients(clients.map(c => c.id === selectedClient.id ? updatedClient : c));
     }
   };
 
   const handleDeleteClient = (clientId: string) => {
+    // Aquí podrías agregar lógica para eliminar el cliente usando la API si tienes endpoint
     setClients(clients.filter(c => c.id !== clientId));
   };
+
   const headerActions = (
     <Button onClick={handleCreateClient}>
       <Plus className="h-4 w-4 mr-2" />
@@ -54,10 +68,12 @@ const CRM: React.FC = () => {
     </Button>
   );
 
+  if (loading) return <div className="p-6">Cargando clientes...</div>;
+  if (error) return <div className="p-6 text-red-500">{error}</div>;
+
   return (
     <div className="p-6">
       <Header title="CRM - Gestión de Clientes" actions={headerActions} />
-      
       <div className="mt-6 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
         {clients.map(client => (
           <Card key={client.id} className="hover:shadow-lg transition-shadow">
@@ -102,17 +118,28 @@ const CRM: React.FC = () => {
         ))}
       </div>
 
-      {/* Client Modal */}
+      {/* Client Modal para crear */}
       <ClientModal
         client={selectedClient}
         isOpen={showClientModal}
         onClose={() => {
           setShowClientModal(false);
-          setSelectedClient(null);
+          setSelectedClient(undefined);
           setIsCreating(false);
         }}
         onSave={handleSaveClient}
         onDelete={handleDeleteClient}
+      />
+
+      {/* Slide-over para editar */}
+      <ClientSlideOver
+        client={selectedClient}
+        isOpen={showSlideOver}
+        onClose={() => {
+          setShowSlideOver(false);
+          setSelectedClient(undefined);
+        }}
+        onSave={handleSaveClient}
       />
     </div>
   );

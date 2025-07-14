@@ -1,0 +1,77 @@
+import type { Client } from '../../../shared/types/client';
+import { PrismaClient } from '@prisma/client';
+
+const prisma = new PrismaClient();
+
+export class ClientRepository {
+  async getAll(): Promise<Client[]> {
+    const clients = await prisma.client.findMany();
+    return clients.map(client => ({
+      ...client,
+      phone: client.phone === null ? undefined : client.phone,
+      address: client.address === null ? undefined : client.address,
+      createdAt: client.createdAt instanceof Date ? client.createdAt.toISOString() : client.createdAt,
+      updatedAt: client.updatedAt instanceof Date
+        ? client.updatedAt.toISOString()
+        : client.updatedAt === null
+        ? undefined
+        : client.updatedAt,
+    }));
+  }
+
+  async getById(id: string): Promise<Client | null> {
+    const client = await prisma.client.findUnique({ where: { id } });
+    if (!client) return null;
+    return {
+      ...client,
+      phone: client.phone === null ? undefined : client.phone,
+      address: client.address === null ? undefined : client.address,
+      createdAt: client.createdAt instanceof Date ? client.createdAt.toISOString() : client.createdAt,
+      updatedAt: client.updatedAt instanceof Date
+        ? client.updatedAt.toISOString()
+        : client.updatedAt === null
+        ? undefined
+        : client.updatedAt,
+    };
+  }
+
+  async create(data: Partial<Client>): Promise<Client> {
+    const client = await prisma.client.create({ data: data as any });
+    return {
+      ...client,
+      phone: client.phone === null ? undefined : client.phone,
+      address: client.address === null ? undefined : client.address,
+      createdAt: client.createdAt instanceof Date ? client.createdAt.toISOString() : client.createdAt,
+      updatedAt: client.updatedAt instanceof Date
+        ? client.updatedAt.toISOString()
+        : client.updatedAt === null
+        ? undefined
+        : client.updatedAt,
+    };
+  }
+
+  async update(id: string, data: Partial<Client>): Promise<Client | null> {
+    const client = await prisma.client.update({ where: { id }, data: data as any });
+    return {
+      ...client,
+      phone: client.phone === null ? undefined : client.phone,
+      address: client.address === null ? undefined : client.address,
+      createdAt: client.createdAt instanceof Date ? client.createdAt.toISOString() : client.createdAt,
+      updatedAt: client.updatedAt instanceof Date
+        ? client.updatedAt.toISOString()
+        : client.updatedAt === null
+        ? undefined
+        : client.updatedAt,
+    };
+  }
+
+  async delete(id: string): Promise<boolean> {
+    try {
+      await prisma.client.delete({ where: { id } });
+      return true;
+    } catch (error) {
+      console.error(error);
+      return false;
+    }
+  }
+}

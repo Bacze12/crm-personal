@@ -4,6 +4,8 @@ export interface Client {
   email: string;
   phone?: string;
   address?: string;
+  company?: string;
+  notes?: string;
   createdAt: string;
   updatedAt?: string;
 }
