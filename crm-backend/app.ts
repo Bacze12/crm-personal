@@ -4,15 +4,11 @@ import cors from 'cors';
 import { authRoutes } from './src/routes/authRoutes';
 import { userRoutes } from './src/routes/userRoutes';
 import { AuthService } from './src/services/auth.service';
+
 import { UserRepository } from './src/repositories/userRepository';
-import Knex from 'knex';
 import 'dotenv/config'; // Asegúrate de que dotenv esté instalado y configurado
-// Importa tu knexfile y configura la conexión
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const knexConfig = require('./knexfile');
-const environment = process.env.NODE_ENV || 'staging';
-const knex = Knex(knexConfig[environment]);
-const userRepository = new UserRepository(knex);
+
+const userRepository = new UserRepository();
 
 
 const app = express();

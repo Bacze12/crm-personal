@@ -30,3 +30,5 @@ coverage/
 *.swp
 .idea/
 .vscode/
+
+/../../generated/prisma

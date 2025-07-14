@@ -1,39 +1,48 @@
-import type { Knex } from 'knex';
+
 import type { User } from '../../../shared/types/user';
-import { randomUUID } from 'crypto';
+import { PrismaClient } from '@prisma/client';
+
+
+const prisma = new PrismaClient();
 
 export class UserRepository {
-  constructor(private knex: Knex) {}
+  // constructor innecesario para Prisma
 
   async findAll(): Promise<User[]> {
-    return this.knex('users').select('*');
+    const users = await prisma.user.findMany();
+    return users.map(user => ({ ...user, avatar: user.avatar === null ? undefined : user.avatar }));
   }
+
 
   async findById(id: string): Promise<User | undefined> {
-    return this.knex('users').where({ id }).first();
+    const user = await prisma.user.findUnique({ where: { id } });
+    if (!user) return undefined;
+    return { ...user, avatar: user.avatar === null ? undefined : user.avatar };
   }
+
 
   async create(data: Partial<User>): Promise<User> {
-    const [user] = await this.knex('users')
-      .insert({
-        ...data,
-        id: data.id ?? randomUUID(), // Genera un UUID si no viene uno
-      })
-      .returning('*');
-    return user;
+    // Prisma generará el id automáticamente si no se provee
+    const user = await prisma.user.create({ data: data as any });
+    return { ...user, avatar: user.avatar === null ? undefined : user.avatar };
   }
+
 
   async update(id: string, data: Partial<User>): Promise<User | undefined> {
-    const [user] = await this.knex('users').where({ id }).update(data).returning('*');
-    return user;
+    const user = await prisma.user.update({ where: { id }, data: data as any });
+    return { ...user, avatar: user.avatar === null ? undefined : user.avatar };
   }
+
 
   async remove(id: string): Promise<number> {
-    return this.knex('users').where({ id }).del();
+    await prisma.user.delete({ where: { id } });
+    return 1;
   }
 
+
   async findByEmail(email: string): Promise<User | null> {
-    const user = await this.knex('users').where({ email }).first();
-    return user ?? null;
+    const user = await prisma.user.findUnique({ where: { email } });
+    if (!user) return null;
+    return { ...user, avatar: user.avatar === null ? undefined : user.avatar };
   }
 }
