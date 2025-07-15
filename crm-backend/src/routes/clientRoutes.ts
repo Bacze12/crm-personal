@@ -20,8 +20,12 @@ export function clientRoutes(){
     // Endpoint para actualizar un cliente
     router.put('/:id', controller.updateClient.bind(controller));
 
+
     // Endpoint para eliminar un cliente
     router.delete('/:id', controller.deleteClient.bind(controller));
+
+    // Endpoint para eliminar múltiples clientes
+    router.post('/delete-many', controller.deleteManyClients.bind(controller));
 
     return router;
 }

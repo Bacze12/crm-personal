@@ -4,12 +4,27 @@ import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
 export class ClientRepository {
+  async deleteMany(ids: string[]): Promise<{ deleted: string[]; notFound: string[] }> {
+    const deleted: string[] = [];
+    const notFound: string[] = [];
+    for (const id of ids) {
+      try {
+        await prisma.client.delete({ where: { id } });
+        deleted.push(id);
+      } catch (error) {
+        notFound.push(id);
+      }
+    }
+    return { deleted, notFound };
+  }
   async getAll(): Promise<Client[]> {
     const clients = await prisma.client.findMany();
     return clients.map(client => ({
       ...client,
       phone: client.phone === null ? undefined : client.phone,
       address: client.address === null ? undefined : client.address,
+      company: client.company === null ? undefined : client.company,
+      notes: client.notes === null ? undefined : client.notes,
       createdAt: client.createdAt instanceof Date ? client.createdAt.toISOString() : client.createdAt,
       updatedAt: client.updatedAt instanceof Date
         ? client.updatedAt.toISOString()
@@ -26,6 +41,8 @@ export class ClientRepository {
       ...client,
       phone: client.phone === null ? undefined : client.phone,
       address: client.address === null ? undefined : client.address,
+      company: client.company === null ? undefined : client.company,
+      notes: client.notes === null ? undefined : client.notes,
       createdAt: client.createdAt instanceof Date ? client.createdAt.toISOString() : client.createdAt,
       updatedAt: client.updatedAt instanceof Date
         ? client.updatedAt.toISOString()
@@ -41,6 +58,8 @@ export class ClientRepository {
       ...client,
       phone: client.phone === null ? undefined : client.phone,
       address: client.address === null ? undefined : client.address,
+      company: client.company === null ? undefined : client.company,
+      notes: client.notes === null ? undefined : client.notes,
       createdAt: client.createdAt instanceof Date ? client.createdAt.toISOString() : client.createdAt,
       updatedAt: client.updatedAt instanceof Date
         ? client.updatedAt.toISOString()
@@ -56,6 +75,8 @@ export class ClientRepository {
       ...client,
       phone: client.phone === null ? undefined : client.phone,
       address: client.address === null ? undefined : client.address,
+      company: client.company === null ? undefined : client.company,
+      notes: client.notes === null ? undefined : client.notes,
       createdAt: client.createdAt instanceof Date ? client.createdAt.toISOString() : client.createdAt,
       updatedAt: client.updatedAt instanceof Date
         ? client.updatedAt.toISOString()
