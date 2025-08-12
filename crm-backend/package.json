@@ -3,9 +3,11 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "dev": "ts-node-dev --respawn --transpile-only app.ts",
-    "prisma:seed": "ts-node ./prisma/seed.ts",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "prisma:seed": "npx prisma db seed",
+    "dev": "ts-node-dev --respawn --transpile-only app.ts"
+  },
+  "prisma": {
+    "seed": "ts-node prisma/seed.ts"
   },
   "keywords": [],
   "author": "",

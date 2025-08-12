@@ -23,8 +23,11 @@ COPY crm-backend/ ./crm-backend/
 # Establece el directorio de trabajo final
 WORKDIR /app/crm-backend
 
+# Genera el cliente de Prisma
+RUN npx prisma generate
+
 # Expone el puerto que tu aplicación usa para escuchar las peticiones.
 EXPOSE 3000
 
 # Define el comando para iniciar la aplicación.
-CMD ["npm","run", "dev"]
+CMD ["sh", "-c", "npx prisma migrate deploy && npm run dev"]
