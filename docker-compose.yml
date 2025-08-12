@@ -5,9 +5,9 @@ services:
     image: postgres:15
     restart: always
     environment:
-      POSTGRES_USER: crmuser
-      POSTGRES_PASSWORD: crmpass
-      POSTGRES_DB: crm
+      POSTGRES_USER: ${POSTGRES_USER:-crmuser}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-crmpass}
+      POSTGRES_DB: ${POSTGRES_DB:-crm}
     ports:
       - '5432:5432'
     volumes:
@@ -15,15 +15,18 @@ services:
 
   backend:
     build:
-      context: ./ # Cambia el contexto al directorio raíz
+      context: ./
       dockerfile: ./crm-backend/Dockerfile
     container_name: crm-backend
     restart: always
     ports:
-      - '3001:3000' # Puerto externo:interno
+      - '3001:3000'
       - '5555:5555'
     environment:
-      DATABASE_URL: postgresql://crmuser:crmpass@db:5432/crm
+      DATABASE_URL: postgresql://${POSTGRES_USER:-crmuser}:${POSTGRES_PASSWORD:-crmpass}@db:5432/${POSTGRES_DB:-crm}
+      NODE_ENV: ${NODE_ENV:-staging}
+      PORT: 3000
+      JWT_SECRET: ${JWT_SECRET}
     volumes:
       - ./crm-backend:/app/crm-backend
       - ./shared:/app/shared
@@ -34,7 +37,7 @@ services:
   
   frontend:
     build:
-      context: ./ # Cambia el contexto al directorio raíz
+      context: ./
       dockerfile: ./frontend/Dockerfile
     container_name: crm-frontend
     restart: always
@@ -48,7 +51,6 @@ services:
     depends_on:
       - backend
     environment:
-      # Para comunicación interna entre contenedores
       - VITE_API_URL=http://backend:3000
 
 volumes:

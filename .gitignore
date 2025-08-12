@@ -1,0 +1,43 @@
+# Dependencias
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Variables de entorno (IMPORTANTE: no commitear)
+.env
+.env.local
+.env.staging
+.env.production
+crm-backend/.env
+frontend/.env
+frontend/.env.local
+
+# Bases de datos
+*.sqlite
+*.db
+
+# Logs
+logs
+*.log
+
+# Docker
+.dockerignore
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Build outputs
+dist/
+build/
+.next/
+
+# Prisma (si lo usas)
+prisma/migrations/
