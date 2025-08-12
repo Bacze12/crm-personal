@@ -2,7 +2,7 @@ import React from 'react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { Calendar, Clock, User, MoreHorizontal } from 'lucide-react';
-import { Task } from '../../types';
+import { Task } from '../../../../shared/types/task';
 import { cn } from '../../utils/cn';
 import { format } from 'date-fns';
 

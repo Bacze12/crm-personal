@@ -1,4 +1,6 @@
 import {Router} from 'express';
+import {body, validationResult} from 'express-validator';
+import {Request, Response, NextFunction} from 'express';
 import {ClientController} from '../controllers/clientController';
 import {ClientRepository} from '../repositories/clientRepository';
 
@@ -15,10 +17,36 @@ export function clientRoutes(){
     router.get('/:id', controller.getClientById.bind(controller));
 
     // Endpoint para crear un nuevo cliente
-    router.post('/', controller.createClient.bind(controller));
+    router.post('/',[
+      body('name').notEmpty().withMessage('Name is required'),
+      body('email').isEmail().withMessage('Valid email is required'),
+      body('phone').optional().isString(),
+      body('address').optional().isString(),
+      body('company').optional().isString(),
+      body('notes').optional().isString()
+    ], (req: Request, res: Response, next: NextFunction) => {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+      }
+      next();
+    }, controller.createClient.bind(controller));
 
     // Endpoint para actualizar un cliente
-    router.put('/:id', controller.updateClient.bind(controller));
+    router.patch('/:id',[
+      body('name').optional().notEmpty().withMessage('Name is required'),
+      body('email').optional().isEmail().withMessage('Valid email is required'),
+      body('phone').optional().isString(),
+      body('address').optional().isString(),
+      body('company').optional().isString(),
+      body('notes').optional().isString()
+    ], (req: Request, res: Response, next: NextFunction) => {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+      }
+      next();
+    }, controller.updateClient.bind(controller));
 
 
     // Endpoint para eliminar un cliente

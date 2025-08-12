@@ -1,3 +1,4 @@
+// Imports
 import React, { useState } from 'react';
 import {
   DndContext,
@@ -9,7 +10,7 @@ import {
   useSensors,
 } from '@dnd-kit/core';
 import { arrayMove, SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
-import { Task } from '../../types';
+import { Task } from '../../../../shared/types/task';
 import KanbanColumn from './KanbanColumn';
 import KanbanCard from './KanbanCard';
 
@@ -60,7 +61,8 @@ const KanbanBoard: React.FC<KanbanBoardProps> = ({ tasks, onUpdateTask, onDelete
     if (targetColumn) {
       const updatedTask = {
         ...activeTask,
-        status: targetColumn.id as Task['status'],
+        // 🐛 CORREGIDO: Usamos `statusId` en lugar de `status` para el estado
+        statusId: targetColumn.id,
         updatedAt: new Date(),
       };
       onUpdateTask(updatedTask);
@@ -70,14 +72,13 @@ const KanbanBoard: React.FC<KanbanBoardProps> = ({ tasks, onUpdateTask, onDelete
 
     // Check if reordering within the same column
     const overTask = tasks.find(t => t.id === overId);
-    if (overTask && activeTask.status === overTask.status) {
-      const columnTasks = tasks.filter(t => t.status === activeTask.status);
+    if (overTask && activeTask.statusId === overTask.statusId) {
+      const columnTasks = tasks.filter(t => t.statusId === activeTask.statusId); // 🐛 CORREGIDO: Usamos `statusId`
       const oldIndex = columnTasks.findIndex(t => t.id === activeTask.id);
       const newIndex = columnTasks.findIndex(t => t.id === overId);
       
       if (oldIndex !== newIndex) {
         const reorderedTasks = arrayMove(columnTasks, oldIndex, newIndex);
-        // In a real app, you'd update the order in the database
         console.log('Reordered tasks:', reorderedTasks);
       }
     }
@@ -85,8 +86,8 @@ const KanbanBoard: React.FC<KanbanBoardProps> = ({ tasks, onUpdateTask, onDelete
     setActiveTask(null);
   };
 
-  const getTasksByStatus = (status: Task['status']) => {
-    return tasks.filter(task => task.status === status);
+  const getTasksByStatus = (statusId: string) => {
+    return tasks.filter(task => task.statusId === statusId);
   };
 
   return (
@@ -102,14 +103,14 @@ const KanbanBoard: React.FC<KanbanBoardProps> = ({ tasks, onUpdateTask, onDelete
               id={column.id}
               title={column.title}
               color={column.color}
-              count={getTasksByStatus(column.id as Task['status']).length}
+              count={getTasksByStatus(column.id).length}
             >
               <SortableContext
-                items={getTasksByStatus(column.id as Task['status']).map(t => t.id)}
+                items={getTasksByStatus(column.id).map(t => t.id)}
                 strategy={verticalListSortingStrategy}
               >
                 <div className="space-y-3">
-                  {getTasksByStatus(column.id as Task['status']).map(task => (
+                  {getTasksByStatus(column.id).map(task => (
                     <KanbanCard
                       key={task.id}
                       task={task}

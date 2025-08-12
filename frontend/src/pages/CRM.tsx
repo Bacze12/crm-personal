@@ -6,7 +6,7 @@ import ClientSlideOver from '../components/CRM/ClientSlideOver';
 import { Client } from '../../../shared/types/client';
 import { Plus, Phone, Mail, Building, X, Trash2 } from 'lucide-react';
 import Button from '../components/UI/Button';
-import { fetchClients, createClient, deleteManyClients } from '../data/fetchClients';
+import { fetchClients, createClient, deleteManyClients, updateClient } from '../data/fetchClients';
 
 const CRM: React.FC = () => {
   const [clients, setClients] = useState<Client[]>([]);
@@ -72,24 +72,26 @@ const CRM: React.FC = () => {
     }, 100);
   };
 
+  // --- CÓDIGO CORREGIDO PARA GUARDAR ---
   const handleSaveClient = async (clientData: Partial<Client>) => {
-    if (isCreating) {
-      try {
-        const newClient = await createClient(clientData);
-        setClients([...clients, newClient]);
-      } catch (e) {
-        setError('Error al crear cliente');
-      }
-    } else if (selectedClient) {
-      // Aquí podrías agregar lógica para actualizar el cliente usando la API si tienes endpoint
-      const updatedClient: Client = {
-        ...selectedClient,
-        ...clientData,
-        updatedAt: new Date().toISOString(),
-      };
-      setClients(clients.map(c => c.id === selectedClient.id ? updatedClient : c));
-    }
-  };
+        if (isCreating) {
+            try {
+                const newClient = await createClient(clientData);
+                setClients([...clients, newClient]);
+            } catch (e) {
+                setError('Error al crear cliente');
+            }
+        } else if (selectedClient) {
+            try {
+                // Aquí usamos la función de API 'updateClient' para enviar los cambios
+                const updatedClient = await updateClient(selectedClient.id, clientData);
+                // Actualizamos el estado con el cliente que nos devuelve la API
+                setClients(clients.map(c => c.id === updatedClient.id ? updatedClient : c));
+            } catch (e) {
+                setError('Error al actualizar cliente');
+            }
+        }
+    };
 
   const handleDeleteClient = (clientId: string) => {
     // Aquí podrías agregar lógica para eliminar el cliente usando la API si tienes endpoint
@@ -175,13 +177,28 @@ const CRM: React.FC = () => {
                     <p className="text-sm text-gray-600 mt-2">{client.notes}</p>
                   )}
                 </div>
+                {/* Mostrar proyectos relacionados */}
+                {client.projects && client.projects.length > 0 && (
+                  <div className="mt-2">
+                    <span className="font-semibold text-xs text-gray-700">Proyectos relacionados:</span>
+                    <ul className="list-disc ml-4 text-xs text-gray-600">
+                      {client.projects.map(project =>
+                        typeof project === 'object' && project !== null && 'id' in project && 'name' in project ? (
+                          <li key={project.id}>Nombre: {project.name}</li>
+                        ) : (
+                          <li key={project as string}>Nombre: {project}</li>
+                        )
+                      )}
+                    </ul>
+                  </div>
+                )}
                 <div className="mt-4 flex space-x-2">
                   {!deleteMode && (
                     <>
                       <Button size="sm" variant="outline" onClick={() => handleEditClient(client)}>
                         Editar
                       </Button>
-                      <Button size="sm" variant="outline">
+                      <Button size="sm" variant="outline" onClick={() => handleEditClient(client)}>
                         Ver Proyectos
                       </Button>
                     </>

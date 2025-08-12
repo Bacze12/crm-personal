@@ -1,15 +1,13 @@
 export interface Project {
   id: string;
   name: string;
-  description: string;
+  description?: string;
   clientId: string;
-  status: 'active' | 'completed' | 'on-hold';
+  status: 'active' | 'completed' | 'on_hold';
   priority: 'low' | 'medium' | 'high' | 'urgent';
   startDate: string;
   endDate?: string;
   budget?: number;
-  team: string[]; // Array of user IDs
+  team?: string[]; // Array of user IDs
   progress: number; // Percentage of completion
-  createdAt: string;
-  updatedAt: string;
 }

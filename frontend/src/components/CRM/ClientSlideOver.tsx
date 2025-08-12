@@ -14,9 +14,13 @@ const ClientSlideOver: React.FC<ClientSlideOverProps> = ({ client, isOpen, onClo
   const [form, setForm] = useState<Partial<Client>>(client || {});
 
   React.useEffect(() => {
-    setForm(client || {});
-    setEditMode(false);
-  }, [client, isOpen]);
+    if (client) {
+      setForm(client);
+    } else {
+      setForm({});
+  } setEditMode(false); // Reset edit mode when client changes
+  },
+  [client]);
 
   if (!isOpen || !client) return null;
 
@@ -40,6 +44,7 @@ const ClientSlideOver: React.FC<ClientSlideOverProps> = ({ client, isOpen, onClo
           <button onClick={onClose} className="text-gray-400 hover:text-gray-600">✕</button>
         </div>
         <div className="flex-1 overflow-y-auto p-4 space-y-4">
+          
           <div>
             <label className="block text-xs font-medium text-gray-500">Nombre</label>
             {editMode ? (
@@ -88,6 +93,21 @@ const ClientSlideOver: React.FC<ClientSlideOverProps> = ({ client, isOpen, onClo
               <div className="text-base text-gray-900 mt-1 whitespace-pre-line">{client.notes || <span className="text-gray-400">Sin notas</span>}</div>
             )}
           </div>
+          {/* Proyectos relacionados */}
+          {client.projects && client.projects.length > 0 && (
+            <div>
+              <label className="block text-xs font-medium text-gray-500 mb-1">Proyectos relacionados</label>
+              <ul className="list-disc ml-4 text-xs text-gray-700">
+                {client.projects.map(project =>
+                  typeof project === 'object' && project !== null && 'id' in project && 'name' in project ? (
+                    <li key={project.id}>Nombre: {project.name}</li>
+                  ) : (
+                    <li key={project as string}>Nombre: {project}</li>
+                  )
+                )}
+              </ul>
+            </div>
+          )}
         </div>
         <div className="p-4 border-t flex justify-between">
           {!editMode ? (

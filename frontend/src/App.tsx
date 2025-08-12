@@ -3,7 +3,6 @@ import { useAuthContext } from './context/AuthContext';
 import Layout from './components/Layout/Layout';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
-import Clients from './pages/Clients';
 import CRM from './pages/CRM';
 import Projects from './pages/Projects';
 import Time from './pages/Time';
@@ -37,7 +36,6 @@ function App() {
           <Route path="/" element={<Layout />}>
             <Route index element={<Navigate to="/dashboard" replace />} />
             <Route path="dashboard" element={<Dashboard />} />
-            <Route path="clients" element={<Clients />} />
             <Route path="crm" element={<CRM />} />
             <Route path="projects" element={<Projects />} />
             <Route path="time" element={<Time />} />

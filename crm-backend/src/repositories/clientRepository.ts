@@ -18,13 +18,19 @@ export class ClientRepository {
     return { deleted, notFound };
   }
   async getAll(): Promise<Client[]> {
-    const clients = await prisma.client.findMany();
+    const clients = await prisma.client.findMany({ include: { projects: true } });
     return clients.map(client => ({
       ...client,
       phone: client.phone === null ? undefined : client.phone,
       address: client.address === null ? undefined : client.address,
       company: client.company === null ? undefined : client.company,
       notes: client.notes === null ? undefined : client.notes,
+      projects: client.projects?.map((p: any) =>  ({
+        id: p.id,
+        name: p.name,
+        startDate: p.startDate instanceof Date ? p.startDate.toISOString() : p.startDate,
+        endDate: p.endDate instanceof Date ? p.endDate.toISOString() : p.endDate,
+      })) ?? [],
       createdAt: client.createdAt instanceof Date ? client.createdAt.toISOString() : client.createdAt,
       updatedAt: client.updatedAt instanceof Date
         ? client.updatedAt.toISOString()
@@ -35,7 +41,7 @@ export class ClientRepository {
   }
 
   async getById(id: string): Promise<Client | null> {
-    const client = await prisma.client.findUnique({ where: { id } });
+    const client = await prisma.client.findUnique({ where: { id }, include: { projects: true } });
     if (!client) return null;
     return {
       ...client,
@@ -43,6 +49,12 @@ export class ClientRepository {
       address: client.address === null ? undefined : client.address,
       company: client.company === null ? undefined : client.company,
       notes: client.notes === null ? undefined : client.notes,
+      projects: client.projects?.map((p: any) =>  ({
+        id: p.id,
+        name: p.name,
+        startDate: p.startDate instanceof Date ? p.startDate.toISOString() : p.startDate,
+        endDate: p.endDate instanceof Date ? p.endDate.toISOString() : p.endDate,
+      })) ?? [],
       createdAt: client.createdAt instanceof Date ? client.createdAt.toISOString() : client.createdAt,
       updatedAt: client.updatedAt instanceof Date
         ? client.updatedAt.toISOString()

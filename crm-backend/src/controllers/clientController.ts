@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { ClientRepository } from '../repositories/clientRepository';
 import { ClientService } from '../services/clientService';
+import { ClientDTO, ClientUpdateDTO } from '../dtos/client.dto'; // Assuming you have a DTO for Client
 
 export class ClientController {
   private clientService: ClientService;
@@ -8,7 +9,7 @@ export class ClientController {
     this.clientService = new ClientService(clientRepository);
   }
 
-  async getClients(req: Request, res: Response) {
+  async getClients(_req: Request, res: Response) {
     try {
       const clients = await this.clientService.getAllClients();
       res.json(clients);
@@ -32,7 +33,8 @@ export class ClientController {
 
   async createClient(req: Request, res: Response) {
     try {
-      const newClient = await this.clientService.createClient(req.body);
+      const clientData = new ClientDTO(req.body);
+      const newClient = await this.clientService.createClient(clientData);
       res.status(201).json(newClient);
     } catch (error) {
       console.error(error);
@@ -43,7 +45,8 @@ export class ClientController {
   async updateClient(req: Request, res: Response) {
     const { id } = req.params;
     try {
-      const updatedClient = await this.clientService.updateClient(id, req.body);
+      const clientUpdateData = new ClientUpdateDTO(req.body);
+      const updatedClient = await this.clientService.updateClient(id, clientUpdateData);
       if (!updatedClient) return res.status(404).json({ error: 'Client not found' });
       res.json(updatedClient);
     } catch (error) {
